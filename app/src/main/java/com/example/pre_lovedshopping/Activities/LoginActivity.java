@@ -1,6 +1,4 @@
-package com.example.pre_lovedshopping;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.pre_lovedshopping.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -13,7 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.pre_lovedshopping.Connection.ConnectionClass;
+import com.example.pre_lovedshopping.R;
 import com.example.pre_lovedshopping.Session.SessionManager;
 
 import java.sql.Connection;

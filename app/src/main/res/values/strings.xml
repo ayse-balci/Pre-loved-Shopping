@@ -11,4 +11,15 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="navigation_drawer_open">Drawer Open</string>
+    <string name="navigation_drawer_close">Drawer Closed</string>
+
+    <string-array name="typesOfContribution">
+        <item>Car</item>
+        <item>Clothes</item>
+        <item>Electronic</item>
+        <item>Furniture</item>
+        <item>House</item>
+    </string-array>
 </resources>

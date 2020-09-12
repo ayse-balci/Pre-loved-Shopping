@@ -3,28 +3,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/MainActivity">
+    app:startDestination="@id/navigation_dashboard">
 
-    <activity android:id="@+id/MainActivity"
-        android:name="com.example.pre_lovedshopping.MainActivity"
-        android:label="Main Activity"
-        tools:layout="@layout/activity_main"
-        >
 
-    </activity>
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.pre_lovedshopping.Fragments.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
 
-    <activity android:id="@+id/LoginActivity"
-        android:name="com.example.pre_lovedshopping.LoginActivity"
-        android:label="Login Activity"
-        tools:layout="@layout/activity_login"
-        >
+    </fragment>
 
-    </activity>
-    <activity android:id="@+id/RegisterActivity"
-        android:name="com.example.pre_lovedshopping.RegisterActivity"
-        android:label="Register Activity"
-        tools:layout="@layout/activity_register">
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.example.pre_lovedshopping.Fragments.DashboardFragment"
+        android:label="Dashboard"
+        tools:layout="@layout/fragment_dashboard">
+    </fragment>
 
-    </activity>
+    <fragment
+        android:id="@+id/navigation_contribution"
+        android:name="com.example.pre_lovedshopping.Fragments.ContributionFragment"
+        android:label="Contribution"
+        tools:layout="@layout/fragment_contribution">
+        <action
+            android:id="@+id/action_navigation_contribution_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_favourite"
+        android:name="com.example.pre_lovedshopping.Fragments.FavouriteFragment"
+        android:label="Favourite"
+        tools:layout="@layout/fragment_favourite">
+    </fragment>
 
 </navigation>

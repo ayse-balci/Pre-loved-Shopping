@@ -3,9 +3,8 @@ package com.example.pre_lovedshopping.Session;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 
-import com.example.pre_lovedshopping.LoginActivity;
+import com.example.pre_lovedshopping.Activities.LoginActivity;
 
 import java.util.HashMap;
 

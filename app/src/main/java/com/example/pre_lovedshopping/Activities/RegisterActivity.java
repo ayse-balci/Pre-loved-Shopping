@@ -1,7 +1,4 @@
-package com.example.pre_lovedshopping;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+package com.example.pre_lovedshopping.Activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -17,7 +14,11 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import com.example.pre_lovedshopping.Connection.ConnectionClass;
+import com.example.pre_lovedshopping.R;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
