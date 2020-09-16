@@ -8,19 +8,27 @@
     android:orientation="vertical">
     
     <LinearLayout
+
+        android:background="@mipmap/triangles"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center">
-        
-        
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@mipmap/ic_launcher"
-            android:layout_gravity="center"
-            android:id="@+id/splashimg"/>
 
-</LinearLayout>
+
+        <TextView
+            android:id="@+id/starting_text"
+            android:textStyle="italic"
+            android:layout_width="249dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="310dp"
+            android:text="PRE-LOVED SHOPPING"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/colorWhite"
+            android:textSize="45dp" />
+
+
+    </LinearLayout>
 
 </LinearLayout>

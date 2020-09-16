@@ -33,6 +33,7 @@ public class ProfileFragment extends Fragment {
 
     TextView name;
     boolean success;
+    String n;
 
     Connection con;
 
@@ -61,36 +62,39 @@ public class ProfileFragment extends Fragment {
         SyncData orderData = new SyncData();
         orderData.execute("");
 
-        final SessionManager sessionManager = new SessionManager(getContext());
-        sessionManager.checkLogin();
-
         getView().findViewById(R.id.btn_logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                builder.setTitle("Logout");
-                builder.setMessage("Are you sure to Log out?");
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        sessionManager.logoutUser();
-                       // Intent intent = new Intent(getContext(), MainActivity.class);
-                       // startActivity(intent);
-                       //finish();
-                    }
-                });
-
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+                logout(view);
             }
         });
+    }
+
+    private void logout(View view){
+        final SessionManager sessionManager = new SessionManager(getContext());
+        sessionManager.checkLogin();
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure to Log out?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sessionManager.logoutUser();
+                // Intent intent = new Intent(getContext(), MainActivity.class);
+                // startActivity(intent);
+                //finish();
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     // Async Task has three overrided methods,
@@ -108,23 +112,31 @@ public class ProfileFragment extends Fragment {
         @Override
         protected String doInBackground(String... strings)  // Connect to the database, write query and add items to array list
         {
-            try
-            {
+            try {
                 con = connectionClass(ConnectionClass.database.toString(), ConnectionClass.port.toString(),ConnectionClass.ip.toString(), ConnectionClass.un.toString(), ConnectionClass.pass.toString());
                 if (con == null) {
                     success = false;
                 }
                 else {
-                    // Change below query according to your own database.
-                    String query = "SELECT name FROM register";
+                    String query = "SELECT name FROM register_table";
                     Statement stmt = con.createStatement();
                     ResultSet rs = stmt.executeQuery(query);
 
-                    name.setText(rs.getString("name"));
-
+                    if (rs != null) // if resultset not null, I add items to itemArraylist using class created
+                    {
+                        while (rs.next())
+                        {
+                            try {
+                                n = rs.getString("name");
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                        success = true;
+                    }
+                    name.setText(n);
                 }
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
                 Writer writer = new StringWriter();
                 e.printStackTrace(new PrintWriter(writer));

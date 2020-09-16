@@ -42,6 +42,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -50,21 +51,19 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
     int RESULT_LOAD_IMAGE = 1;
     private static final int IMAGE_PICK_CODE=1000;
     private static final int PERMISSION_CODE=1001;
-    Uri imageUri;
-    String myURL = "";
 
     ImageView img_added;
     TextInputEditText cont_title, cont_description;
     ProgressBar progressBar;
     Spinner spinner;
     String itemType;
+    Integer user_id;
 
     byte[] byteArray;
     String encodedImage;
 
     ResultSet rs;
     Connection con;
-    PreparedStatement stmt;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,10 +104,6 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(galleryIntent,RESULT_LOAD_IMAGE );
                 // this will jump to onActivity Function after selecting image
-            }
-                    else
-            {
-                //Toast.makeText(MainActivity.this, "No activity found to perform this task", Toast.LENGTH_SHORT).show();
             }
             // End Opening the Gallery and selecting media
         }
@@ -167,21 +162,16 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK  && null != data)
-        {
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK  && null != data) {
             // getting the selected image, setting in imageview and converting it to byte and base 64
             progressBar.setVisibility(View.VISIBLE);
             Bitmap originBitmap = null;
             Uri selectedImage = data.getData();
-            //Toast.makeText(MainActivity.this, selectedImage.toString(), Toast.LENGTH_LONG).show();
             InputStream imageStream;
-            try
-            {
+            try {
                 imageStream = getActivity().getContentResolver().openInputStream(selectedImage);
                 originBitmap = BitmapFactory.decodeStream(imageStream);
-            }
-            catch (FileNotFoundException e)
-            {
+            } catch (FileNotFoundException e) {
                 System.out.println(e.getMessage().toString());
             }
             if (originBitmap != null)
@@ -204,7 +194,6 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
                 {
                     Log.w("OOooooooooo","exception");
                 }
-                //Toast.makeText(MainActivity.this, "Conversion Done",Toast.LENGTH_SHORT).show();
             }
             // End getting the selected image, setting in imageview and converting it to byte and base 64
         }
@@ -221,17 +210,14 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
 
         @Override
         protected void onPreExecute() {
-            //status.setText("Sending Data to Database");
             progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(String s) {
             progressBar.setVisibility(View.GONE);
-           // status.setText("Registration Successful");
             cont_title.setText("");
             cont_description.setText("");
-           // password.setText("");
         }
 
         @Override
@@ -239,25 +225,38 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
             String title = cont_title.getText().toString();
             String description = cont_description.getText().toString();
             String s = "false";
+            boolean success = false;
 
             try{
                 con = connectionClass(ConnectionClass.database.toString(), ConnectionClass.port.toString(),ConnectionClass.ip.toString(), ConnectionClass.un.toString(), ConnectionClass.pass.toString());
-
-
-                Log.d("ContributionFragment", "buradayim " + encodedImage);
 
                 if(con == null){
                     _message = "Check Your Internet Connection";
                 }
                 else{
-                    if (itemType.equals("Car")) {
-                        String sql = "INSERT INTO cars_table (contribution_title,contribution_description,contribution_price,contribution_image,contribution_city) VALUES ('" + title + "','" + description + "','" + "50.000" + "','" + encodedImage + "','" + "ankara" + "')";
-                       // Statement stmt = con.createStatement();
-                        stmt = con.prepareStatement(sql);
-                        stmt.executeUpdate();
-                    }
-                }
+                    String query = "SELECT * FROM register_table where SomeField = '" + "user_id" + "'";
+                    Statement stmt0 = con.createStatement();
+                    ResultSet rs = stmt0.executeQuery(query);
+                    if (rs != null)
+                    {
+                        while (rs.next())
+                        {
+                            try {
+                                user_id = rs.getInt("user_id");
 
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                        success = true;
+                    }
+                    // I want to insert the user_id automaticlly inside contributions_table for the one who press on share button
+                    //The user have registered and logged in, its id should seems in contributions_table
+                    String sql = "INSERT INTO contributions_table (userid,contribution_title,contribution_description,contribution_price,contribution_image,contribution_city) VALUES ('" + user_id + "','" + "car" + "','" + "3 years" + "','" + "50.000$" + "','" + "encodedImage" + "','" + "ankara/turkey" + "')";
+
+                    PreparedStatement stmt1 = con.prepareStatement(sql);
+                    stmt1.executeUpdate();
+                }
             }catch (Exception e){
                 isSuccess = false;
                 _message = e.getMessage();

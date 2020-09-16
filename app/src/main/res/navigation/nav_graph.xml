@@ -18,8 +18,7 @@
         android:id="@+id/navigation_dashboard"
         android:name="com.example.pre_lovedshopping.Fragments.DashboardFragment"
         android:label="Dashboard"
-        tools:layout="@layout/fragment_dashboard">
-    </fragment>
+        tools:layout="@layout/fragment_dashboard"/>
 
     <fragment
         android:id="@+id/navigation_contribution"

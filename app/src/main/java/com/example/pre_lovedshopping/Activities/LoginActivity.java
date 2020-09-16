@@ -93,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                 message = "On Internet Connection";
             }else {
                 try {
-                    String sql = "SELECT * FROM register WHERE email = '" + emaillogin.getText().toString() + "' AND password = '" + passwordlogin.getText().toString() +"' ";
+                    String sql = "SELECT * FROM register_table WHERE email = '" + emaillogin.getText().toString() + "' AND password = '" + passwordlogin.getText().toString() +"' ";
                     Statement stmt = con.createStatement();
                     ResultSet rs = stmt.executeQuery(sql);
 

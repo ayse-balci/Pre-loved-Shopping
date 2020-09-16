@@ -15,7 +15,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
     private BottomNavigationView mBottomNavigationView;
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -24,12 +23,35 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //mBottomNavigationView = findViewById(R.id.nav_view);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-      /*  DrawerLayout drawer = findViewById(R.id.container);
+        setupBottomNavigationView();
+
+        //setupDrawerLayout();
+
+    }
+
+    private void setupBottomNavigationView(){
+        BottomNavigationView navView = findViewById(R.id.nav_bottom_view);
+
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_dashboard, R.id.navigation_profile)
+                .build();
+        NavController navController2 = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavigationUI.setupActionBarWithNavController(this, navController2, appBarConfiguration);
+        NavigationUI.setupWithNavController(navView, navController2);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
+    }
+
+    private void setupDrawerLayout(){
+       /* DrawerLayout drawer = findViewById(R.id.container);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
 
@@ -40,24 +62,6 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);*/
-
-        BottomNavigationView navView = findViewById(R.id.nav_bottom_view);
-
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_dashboard, R.id.navigation_profile)
-                .build();
-        NavController navController2 = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController2, appBarConfiguration);
-        NavigationUI.setupWithNavController(navView, navController2);
-
-    }
-
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
     }
 
 }

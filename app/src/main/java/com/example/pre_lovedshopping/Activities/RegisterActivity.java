@@ -91,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
                     _message = "Check Your Internet Connection";
                 }
                 else{
-                    String sql = "INSERT INTO register (name,email,password) VALUES ('" + _name + "','" + _email + "','"+ _password +"')";
+                    String sql = "INSERT INTO register_table (name,email,password) VALUES ('" + _name + "','" + _email + "','"+ _password +"')";
                     stmt = con.createStatement();
                     stmt.executeUpdate(sql);
                     Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
