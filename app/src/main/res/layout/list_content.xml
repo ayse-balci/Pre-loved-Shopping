@@ -16,8 +16,9 @@
 
                         <ImageView
                             android:id="@+id/imageView_cont"
-                            android:layout_width="wrap_content"
+                            android:layout_width="120dp"
                             android:layout_height="120dp"
+                            android:layout_alignParentLeft="true"
                             android:layout_marginLeft="0dp"
                             android:padding="4dp" />
 
@@ -31,13 +32,14 @@
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
                             android:textColor="#000000" />
 
-
                         <TextView
                             android:id="@+id/cont_price_in_list"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_below="@id/cont_title_in_list"
-                            android:layout_toRightOf="@id/imageView_cont"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginTop="-31dp"
+                            android:layout_marginRight="25dp"
                             android:text="Price"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
                             android:textStyle="bold" />

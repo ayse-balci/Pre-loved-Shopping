@@ -2,9 +2,13 @@ package com.example.pre_lovedshopping.Fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,16 +18,16 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.pre_lovedshopping.model.ClassListItems;
 import com.example.pre_lovedshopping.Connection.ConnectionClass;
 import com.example.pre_lovedshopping.R;
 import com.example.pre_lovedshopping.Session.SessionManager;
+import com.example.pre_lovedshopping.model.ClassListItems;
 import com.example.pre_lovedshopping.model.User;
-import com.squareup.picasso.Picasso;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -37,7 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class ProfileFragment extends Fragment {
+public class MyProfileFragment extends Fragment {
 
     TextView name;
     boolean success;
@@ -46,29 +50,45 @@ public class ProfileFragment extends Fragment {
     SessionManager sessionManager;
 
     Integer user_id;
+    String uid;
     private ArrayList<ClassListItems> itemArrayList;  //List items Array
     private MyAppAdapter myAppAdapter; //Array Adapter
     private RecyclerView recyclerView; //RecyclerView
     private RecyclerView.LayoutManager mLayoutManager;
     Connection con;
 
+    ImageView cont_delete;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            user_id = getArguments().getInt("user_id");
+        }
+    }
+
+    public void removeContribution(int position) {
+        itemArrayList.remove(position);
+        myAppAdapter.notifyItemRemoved(position);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_myprofile, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+       // uid = getArguments().getString("user_id");
+        //user_id = Integer.valueOf(uid);
+        Log.d("aaaaa", String.valueOf(user_id));
         sessionManager = new SessionManager(getContext());
         sessionManager.checkLogin();
+        cont_delete = getView().findViewById(R.id.contribution_delete);
 
         HashMap<String, String> user = sessionManager.getUserDetail();
         String uName = user.get(sessionManager.NAME);
@@ -88,6 +108,38 @@ public class ProfileFragment extends Fragment {
         SyncData orderData = new SyncData();
         orderData.execute("");
 
+        getView().findViewById(R.id.btn_logout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logout(view);
+            }
+        });
+    }
+
+    private void logout(View view){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure to Log out?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sessionManager.logout();
+                // Intent intent = new Intent(getContext(), MainActivity.class);
+                // startActivity(intent);
+                //finish();
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     // Async Task has three overrided methods,
@@ -112,9 +164,10 @@ public class ProfileFragment extends Fragment {
                 }
                 else {
                     User user = new User();
-                    String query = "SELECT * FROM order_table where user_id = '" + user.id + "'";
-                    Statement stmt = con.createStatement();
 
+                    String query = "SELECT * FROM contribution_table where user_id = '" + user_id + "'";
+                    Log.d("bu", String.valueOf(user_id));
+                    Statement stmt = con.createStatement();
                     ResultSet rs = stmt.executeQuery(query);
 
                     if (rs != null) // if resultset not null, I add items to itemArraylist using class created
@@ -122,7 +175,7 @@ public class ProfileFragment extends Fragment {
                         while (rs.next())
                         {
                             try {
-                                itemArrayList.add(new ClassListItems(rs.getString("title")));
+                                itemArrayList.add(new ClassListItems(rs.getInt("cont_id"),rs.getString("cont_title"), rs.getString("cont_image"), rs.getString(("cont_price"))));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -151,8 +204,15 @@ public class ProfileFragment extends Fragment {
                 try {
                     myAppAdapter = new MyAppAdapter(itemArrayList , getContext());
                     recyclerView.setAdapter(myAppAdapter);
+                    myAppAdapter.setOnItemClickListener(new MyAppAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(int position) {
+                            //changeItem(position, "Clicked");
+                            removeContribution(position);
 
-                    //recyclerView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
+                        }
+                    });
 
                 } catch (Exception ex)
                 {
@@ -181,10 +241,20 @@ public class ProfileFragment extends Fragment {
         return connection;
     }
 
-    public class MyAppAdapter extends RecyclerView.Adapter<MyAppAdapter.ViewHolder>  //has a class viewholder which holds
+    public static class MyAppAdapter extends RecyclerView.Adapter<MyAppAdapter.ViewHolder>  //has a class viewholder which holds
     {
         private List<ClassListItems> itemList;
         public Context context;
+
+        private OnItemClickListener mListener;
+
+        public interface OnItemClickListener {
+            void onItemClick(int position);
+        }
+
+        public void setOnItemClickListener(OnItemClickListener listener) {
+            mListener = listener;
+        }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView textName;
@@ -192,12 +262,24 @@ public class ProfileFragment extends Fragment {
             public ImageView imageView;
             public View layout;
 
-            public ViewHolder(@NonNull View itemView) {
+            public ViewHolder(@NonNull View itemView, OnItemClickListener listener) {
                 super(itemView);
                 layout = itemView;
                 textName = (TextView) itemView.findViewById(R.id.cont_title_in_list);
                 imageView = (ImageView) itemView.findViewById(R.id.imageView_cont);
                 textPrice = (TextView) itemView.findViewById(R.id.cont_price_in_list);
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (listener != null) {
+                            int position = getAdapterPosition();
+                            if (position != RecyclerView.NO_POSITION) {
+                                listener.onItemClick(position);
+                            }
+                        }
+                    }
+                });
             }
         }
 
@@ -210,18 +292,20 @@ public class ProfileFragment extends Fragment {
         @Override
         public MyAppAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            View v = inflater.inflate(R.layout.list_content, parent, false);
-            ViewHolder vh = new ViewHolder(v);
+            View v = inflater.inflate(R.layout.list_content_profile, parent, false);
+            ViewHolder vh = new ViewHolder(v, mListener);
             return vh;
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            final ClassListItems classListItems = itemList.get(position);
+            final ClassListItems classListItems = itemList.get(getItemCount() - position - 1);
             holder.textName.setText(classListItems.getName());
             holder.textPrice.setText(classListItems.getPrice());
 
-            Picasso.get().load("https://img2.exportersindia.com/product_images/bc-full/2020/1/6885975/fresh-apple-1579841793-5267599.jpeg").into(holder.imageView);
+            byte[] bytes = Base64.decode(classListItems.getImg(), Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            holder.imageView.setImageBitmap(bitmap);
         }
 
 

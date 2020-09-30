@@ -33,6 +33,7 @@ import androidx.navigation.Navigation;
 
 import com.example.pre_lovedshopping.Connection.ConnectionClass;
 import com.example.pre_lovedshopping.R;
+import com.example.pre_lovedshopping.model.User;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.ByteArrayOutputStream;
@@ -42,7 +43,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -51,19 +51,20 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
     int RESULT_LOAD_IMAGE = 1;
     private static final int IMAGE_PICK_CODE=1000;
     private static final int PERMISSION_CODE=1001;
+    private static final int ERROR_DIALOG_REQUEST = 9001;
 
-    ImageView img_added;
-    TextInputEditText cont_title, cont_description;
-    ProgressBar progressBar;
-    Spinner spinner;
-    String itemType;
-    Integer user_id;
+    private ImageView imagebox;
+    private TextInputEditText cont_title, cont_description, cont_price, cont_location;
+    private ProgressBar progressBar;
+    private Spinner spinner;
+    private String itemType;
+    private Integer user_id;
 
-    byte[] byteArray;
-    String encodedImage;
+    private byte[] byteArray;
+    private String encodedImage;
 
-    ResultSet rs;
-    Connection con;
+    private ResultSet rs;
+    private Connection con;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,12 +81,12 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        img_added = (ImageView) getView().findViewById(R.id.img_added);
+        imagebox = (ImageView) getView().findViewById(R.id.img_added);
         cont_title = (TextInputEditText) getView().findViewById(R.id.title);
         cont_description = (TextInputEditText) getView().findViewById(R.id.description);
-
+        cont_price = (TextInputEditText) getView().findViewById(R.id.price);
+        cont_location = (TextInputEditText) getView().findViewById(R.id.location);
         spinner = (Spinner) getView().findViewById(R.id.spinner_contType);
-
         progressBar = (ProgressBar) getView().findViewById(R.id.cont_progress_bar);
         progressBar.setVisibility(View.GONE);
 
@@ -94,19 +95,20 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
+
         getView().findViewById(R.id.btn_selectImg_cont).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            // Opening the Gallery and selecting media
-            {
-            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)&& !Environment.getExternalStorageState().equals(Environment.MEDIA_CHECKING))
-            {
-                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(galleryIntent,RESULT_LOAD_IMAGE );
-                // this will jump to onActivity Function after selecting image
+            public void onClick(View v) {
+
+                // Opening the Gallery and selecting media
+
+                if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)&& !Environment.getExternalStorageState().equals(Environment.MEDIA_CHECKING)) {
+                    Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(galleryIntent,RESULT_LOAD_IMAGE );
+                    // this will jump to onActivity Function after selecting image
+                }
+                // End Opening the Gallery and selecting media
             }
-            // End Opening the Gallery and selecting media
-        }
         });
 
         getView().findViewById(R.id.btn_save_cont).setOnClickListener(new View.OnClickListener() {
@@ -122,6 +124,7 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         itemType = adapterView.getItemAtPosition(i).toString();
+        Log.d("ContributionFragment", itemType);
         //Toast.makeText(adapterView.getContext(), text, Toast.LENGTH_SHORT).show();
     }
 
@@ -176,11 +179,11 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
             }
             if (originBitmap != null)
             {
-                this.img_added.setImageBitmap(originBitmap);
+                this.imagebox.setImageBitmap(originBitmap);
                 Log.w("Image Setted in", "Done Loading Image");
                 try
                 {
-                    Bitmap image = ((BitmapDrawable) img_added.getDrawable()).getBitmap();
+                    Bitmap image = ((BitmapDrawable) imagebox.getDrawable()).getBitmap();
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     image.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
                     byteArray = byteArrayOutputStream.toByteArray();
@@ -192,7 +195,7 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
                 }
                 catch (Exception e)
                 {
-                    Log.w("OOooooooooo","exception");
+                    Log.w("a","exception");
                 }
             }
             // End getting the selected image, setting in imageview and converting it to byte and base 64
@@ -220,40 +223,52 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
             cont_description.setText("");
         }
 
+        @SuppressLint("LongLogTag")
         @Override
         protected String doInBackground(String... strings) {
             String title = cont_title.getText().toString();
             String description = cont_description.getText().toString();
+            String price = cont_price.getText().toString();
+            String location = cont_location.getText().toString();
             String s = "false";
             boolean success = false;
 
             try{
                 con = connectionClass(ConnectionClass.database.toString(), ConnectionClass.port.toString(),ConnectionClass.ip.toString(), ConnectionClass.un.toString(), ConnectionClass.pass.toString());
 
+
                 if(con == null){
                     _message = "Check Your Internet Connection";
                 }
                 else{
-                    String query = "SELECT * FROM register_table where SomeField = '" + "user_id" + "'";
-                    Statement stmt0 = con.createStatement();
-                    ResultSet rs = stmt0.executeQuery(query);
+                    User user = new User();
+                    Log.d("ContributionFragment", user.email);
+                    /*String query = "SELECT * FROM register_table where email = '" + user.email + "'";
+                    Statement stmt = con.createStatement();
+                    ResultSet rs = stmt.executeQuery(query);
+
                     if (rs != null)
                     {
                         while (rs.next())
                         {
                             try {
                                 user_id = rs.getInt("user_id");
+                                Log.d("ContributionFragment", user_id.toString());
 
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
                         }
                         success = true;
-                    }
+                    }*/
                     // I want to insert the user_id automaticlly inside contributions_table for the one who press on share button
                     //The user have registered and logged in, its id should seems in contributions_table
-                    String sql = "INSERT INTO contributions_table (userid,contribution_title,contribution_description,contribution_price,contribution_image,contribution_city) VALUES ('" + user_id + "','" + "car" + "','" + "3 years" + "','" + "50.000$" + "','" + "encodedImage" + "','" + "ankara/turkey" + "')";
+                    //tring sql = "INSERT INTO contributions_table (userid,contribution_title,contribution_description,contribution_price,contribution_image,contribution_city) VALUES ('" + user_id + "','" + cont_title + "','" + cont_description + "','" + "50.000$" + "','" + "encodedImage" + "','" + "ankara/turkey" + "')";
+                    //String sql = "INSERT INTO temp_table (user_id) VALUES ('" + user_id + "')";
 
+                     String sql = "INSERT INTO contribution_table (user_id,cont_title,cont_description,cont_price,cont_location,cont_image,cont_type) VALUES ('" + user.id  + "','" + title  + "','" + description  + "','" + price  + "','" + location  + "','" + encodedImage +  "','" + itemType +  "')";
+                    //String sql = "INSERT INTO order_table (user_id,title) VALUES ('" + user.id  + "','" + title   +  "')";
+                    Log.d("ContributionFragment userid ", user.id.toString());
                     PreparedStatement stmt1 = con.prepareStatement(sql);
                     stmt1.executeUpdate();
                 }
@@ -274,12 +289,10 @@ public class ContributionFragment extends Fragment implements AdapterView.OnItem
         try{
             Class.forName("net.sourceforge.jtds.jdbc.Driver");
             connectionURL = "jdbc:jtds:sqlserver://" + ip +":" + port + "/" + database + ";user=" + un + ";password=" + pass + ";";
-
             connection = DriverManager.getConnection(connectionURL);
         }catch (Exception e){
             Log.e("SQL Connection Error : ", e.getMessage());
         }
-
         return connection;
     }
 }

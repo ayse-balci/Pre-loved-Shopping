@@ -8,9 +8,9 @@
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.example.pre_lovedshopping.Fragments.ProfileFragment"
+        android:name="com.example.pre_lovedshopping.Fragments.MyProfileFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_profile">
+        tools:layout="@layout/fragment_myprofile">
 
     </fragment>
 
@@ -18,7 +18,11 @@
         android:id="@+id/navigation_dashboard"
         android:name="com.example.pre_lovedshopping.Fragments.DashboardFragment"
         android:label="Dashboard"
-        tools:layout="@layout/fragment_dashboard"/>
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_navigation_dashboard_to_contributionDetailsFragment"
+            app:destination="@id/contributionDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_contribution"
@@ -36,5 +40,32 @@
         android:label="Favourite"
         tools:layout="@layout/fragment_favourite">
     </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.pre_lovedshopping.Fragments.ProfileFragment"
+        android:label="ProfileFragment" />
+
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="com.example.pre_lovedshopping.Fragments.SearchFragment"
+        android:label="SearchFragment"
+        tools:layout="@layout/fragment_search" />
+    <fragment
+        android:id="@+id/contributionDetailsFragment"
+        android:name="com.example.pre_lovedshopping.Fragments.ContributionDetailsFragment"
+        android:label="ContributionDetailsFragment" >
+
+        <argument
+            android:name="message"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
+    <activity
+        android:id="@+id/loginActivity"
+        android:name="com.example.pre_lovedshopping.Activities.LoginActivity"
+        android:label="activity_login"
+        tools:layout="@layout/activity_login" />
+
 
 </navigation>

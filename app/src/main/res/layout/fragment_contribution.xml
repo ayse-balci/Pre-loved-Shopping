@@ -15,7 +15,7 @@
         <ImageView
             android:id="@+id/img_added"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="100dp"
             android:layout_gravity="center"
             android:scaleType="centerInside"
             android:src="@mipmap/ic_launcher"
@@ -26,8 +26,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select Image"
+            android:background="@color/colorBlue"
             android:layout_gravity="center"
             android:id="@+id/btn_selectImg_cont"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_contType"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/cont_title"
@@ -53,25 +59,46 @@
                 android:layout_height="100dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Spinner
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cont_price"
+            android:hint="Price"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/spinner_contType"/>
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/price"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cont_location"
+            android:hint="Location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/location"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
+            android:background="@color/colorBlue"
             android:text="Share"
             android:id="@+id/btn_save_cont"/>
-        
+
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/cont_progress_bar"
-            android:layout_gravity="center"/>
-
+            android:layout_gravity="center"
+            android:id="@+id/cont_progress_bar"/>
+      
     </LinearLayout>
 
 

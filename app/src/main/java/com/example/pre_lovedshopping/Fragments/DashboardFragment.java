@@ -1,6 +1,5 @@
 package com.example.pre_lovedshopping.Fragments;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -8,18 +7,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pre_lovedshopping.model.ClassListItems;
+import com.example.pre_lovedshopping.Classes.MyAppAdapter;
 import com.example.pre_lovedshopping.Connection.ConnectionClass;
 import com.example.pre_lovedshopping.R;
-import com.squareup.picasso.Picasso;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -29,7 +29,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class DashboardFragment extends Fragment {
@@ -40,7 +39,7 @@ public class DashboardFragment extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
     private boolean success = false; // boolean
     private ConnectionClass connectionClass; //Connection Class Variable
-
+    private int currentContId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,12 +55,6 @@ public class DashboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView); //Listview Declaration
-        recyclerView.setHasFixedSize(true);
-       // recyclerView.setNestedScrollingEnabled(false);
-        mLayoutManager = new LinearLayoutManager(getContext());
-
-        recyclerView.setLayoutManager( mLayoutManager); //getActivity() ???
 
         connectionClass = new ConnectionClass(); // Connection Class Initialization
         itemArrayList = new ArrayList<ClassListItems>(); // Arraylist Initialization
@@ -70,8 +63,25 @@ public class DashboardFragment extends Fragment {
         SyncData orderData = new SyncData();
         orderData.execute("");
 
+        buildRecyclerView();
+
     }
 
+    public void buildRecyclerView() {
+        recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView); //Listview Declaration
+        recyclerView.setHasFixedSize(true);
+        // recyclerView.setNestedScrollingEnabled(false);
+        mLayoutManager = new LinearLayoutManager(getContext());
+
+        recyclerView.setLayoutManager( mLayoutManager); //getActivity() ???
+
+
+    }
+
+    public void changeItem(int position, String text) {
+        itemArrayList.get(position).changeName(text);
+        myAppAdapter.notifyItemChanged(position);
+    }
 
     // Async Task has three overrided methods,
     private class SyncData extends AsyncTask<String, String, String> {
@@ -79,7 +89,7 @@ public class DashboardFragment extends Fragment {
         //ProgressDialog progress;
 
         @Override
-        protected void onPreExecute() //Starts the progress dailog
+        protected void onPreExecute() //Starts the progress dialog
         {
            // progress = ProgressDialog.show(DashboardFragment.this, "Synchronising", "Listview Loading! Please Wait...", true);
         }
@@ -94,7 +104,10 @@ public class DashboardFragment extends Fragment {
                     success = false;
                 }
                 else {
-                    String query = "SELECT contribution_title,contribution_image,contribution_price FROM cars_table";
+                    //String query = "SELECT contribution_title,contribution_image,contribution_price FROM order_table";
+
+
+                    String query = "SELECT cont_id,cont_title,cont_image,cont_price FROM contribution_table";
                     Statement stmt = con.createStatement();
                     ResultSet rs = stmt.executeQuery(query);
                     if (rs != null) // if resultset not null, I add items to itemArraylist using class created
@@ -102,7 +115,11 @@ public class DashboardFragment extends Fragment {
                         while (rs.next())
                         {
                             try {
-                                itemArrayList.add(new ClassListItems(rs.getString("contribution_title"), rs.getString("contribution_image"), rs.getString("contribution_price")));
+                                String image = rs.getString("cont_image");
+
+                                //imageView.setImageBitmap(bitmap);
+                                itemArrayList.add(new ClassListItems(rs.getInt("cont_id"), rs.getString("cont_title"), image, rs.getString(("cont_price"))));
+
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -138,13 +155,20 @@ public class DashboardFragment extends Fragment {
                     myAppAdapter = new MyAppAdapter(itemArrayList , getContext());
                     recyclerView.setAdapter(myAppAdapter);
 
+                    myAppAdapter.setOnItemClickListener(new MyAppAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(int position) {
+                            //changeItem(position, "Clicked");
+                            ClassListItems classListItems = itemArrayList.get(itemArrayList.size() - position - 1);
+                            NavController navController = Navigation.findNavController(getView());
+                            DashboardFragmentDirections.ActionNavigationDashboardToContributionDetailsFragment action = DashboardFragmentDirections.actionNavigationDashboardToContributionDetailsFragment();
+                            action.setMessage(classListItems.cont_id);
+                            navController.navigate(action);
+
+                        }
+                    });
                     //recyclerView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-
-                } catch (Exception ex)
-                {
-
-                }
-
+                } catch (Exception ex) { }
             }
         }
     }
@@ -166,53 +190,4 @@ public class DashboardFragment extends Fragment {
         return connection;
     }
 
-    public class MyAppAdapter extends RecyclerView.Adapter<MyAppAdapter.ViewHolder>  //has a class viewholder which holds
-    {
-        private List<ClassListItems> itemList;
-        public Context context;
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public TextView textName;
-            public TextView textPrice;
-            public ImageView imageView;
-            public View layout;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                layout = itemView;
-                textName = (TextView) itemView.findViewById(R.id.cont_title_in_list);
-                imageView = (ImageView) itemView.findViewById(R.id.imageView_cont);
-                textPrice = (TextView) itemView.findViewById(R.id.cont_price_in_list);
-            }
-        }
-
-        public MyAppAdapter(List<ClassListItems> itemsArrayList, Context context) {
-            itemList = itemsArrayList;
-            this.context = context;
-        }
-
-       // @NonNull
-        @Override
-        public MyAppAdapter.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            View v = inflater.inflate(R.layout.list_content, parent, false);
-            ViewHolder vh = new ViewHolder(v);
-            return vh;
-        }
-
-        @Override
-        public void onBindViewHolder( ViewHolder holder, final int position) {
-            final ClassListItems classListItems = itemList.get(position);
-            holder.textName.setText(classListItems.getName());
-            holder.textPrice.setText(classListItems.getPrice());
-
-            Picasso.get().load("https://img2.exportersindia.com/product_images/bc-full/2020/1/6885975/fresh-apple-1579841793-5267599.jpeg").into(holder.imageView);
-        }
-
-        @Override
-        public int getItemCount() {
-            return itemList.size();
-        }
-
-    }
 }

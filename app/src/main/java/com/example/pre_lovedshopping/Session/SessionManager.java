@@ -1,65 +1,75 @@
 package com.example.pre_lovedshopping.Session;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
 import com.example.pre_lovedshopping.Activities.LoginActivity;
+import com.example.pre_lovedshopping.Activities.MainActivity;
 
 import java.util.HashMap;
 
 public class SessionManager {
-    SharedPreferences pref;
-    SharedPreferences.Editor editor;
-    Context _context;
-    int Private_mode = 0;
-    private static final String PREF_NAME = "AndroidHivePref";
-    private static final String IS_LOGIN = "IsLoggedIn";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_PASSWORD = "password";
+
+    SharedPreferences sharedPreferences;
+    public SharedPreferences.Editor editor;
+    public Context context;
+    int PRIVATE_MODE = 0;
+
+    private static final String PREF_NAME = "LOGIN";
+    private static final String LOGIN = "IS_LOGIN";
+    public static final String NAME = "NAME";
+    public static final String EMAIL = "EMAIL";
+    public static final String ID = "ID";
 
     public SessionManager(Context context) {
-        this._context = context;
-        pref = _context.getSharedPreferences(PREF_NAME, Private_mode);
-        editor = pref.edit();
+        this.context = context;
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+        editor = sharedPreferences.edit();
     }
 
-    public void createLoginSession (String email, String password) {
-        editor.putBoolean(IS_LOGIN, true);
-        editor.putString(KEY_EMAIL, email);
-        editor.putString(KEY_PASSWORD, password);
-        editor.commit();
+    public void createSession(String email, String name, String password){
+
+        editor.putBoolean(LOGIN, true);
+        editor.putString(NAME, name);
+        editor.putString(EMAIL, email);
+        //editor.putString(ID, id);
+        editor.apply();
+
     }
 
-    public boolean isLoggedIn() {
-        return pref.getBoolean(IS_LOGIN, false);
+    public boolean isLoggin(){
+        return sharedPreferences.getBoolean(LOGIN, false);
     }
 
-    public void checkLogin() {
-        if (!this.isLoggedIn()) {
-            Intent intent = new Intent(_context, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    public void checkLogin(){
 
-            _context.startActivity(intent);
+        if (!this.isLoggin()){
+            Intent i = new Intent(context, LoginActivity.class);
+            context.startActivity(i);
+            ((MainActivity) context).finish();
         }
     }
 
-    public HashMap <String, String> getUserDetails() {
-        HashMap <String, String> user = new HashMap<String, String>();
-        user.put(KEY_EMAIL, pref.getString(KEY_EMAIL, null));
-        user.put(KEY_PASSWORD, pref.getString(KEY_PASSWORD, null));
+    public HashMap<String, String> getUserDetail(){
+
+        HashMap<String, String> user = new HashMap<>();
+        user.put(NAME, sharedPreferences.getString(NAME, null));
+        user.put(EMAIL, sharedPreferences.getString(EMAIL, null));
+        user.put(ID, sharedPreferences.getString(ID, null));
+
         return user;
     }
 
-    public void logoutUser() {
+    public void logout(){
+
         editor.clear();
         editor.commit();
+        Intent i = new Intent(context, LoginActivity.class);
+        context.startActivity(i);
+        ((MainActivity) context).finish();
 
-        Intent intent = new Intent(_context, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        _context.startActivity(intent);
     }
+
 }

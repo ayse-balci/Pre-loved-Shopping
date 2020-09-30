@@ -11,17 +11,27 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.pre_lovedshopping.R;
+import com.example.pre_lovedshopping.Session.SessionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView mBottomNavigationView;
     private AppBarConfiguration mAppBarConfiguration;
+    SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sessionManager = new SessionManager(this);
+        sessionManager.checkLogin();
+        HashMap<String, String> user = sessionManager.getUserDetail();
+        String uName = user.get(sessionManager.NAME);
+        String uemail = user.get(sessionManager.EMAIL);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

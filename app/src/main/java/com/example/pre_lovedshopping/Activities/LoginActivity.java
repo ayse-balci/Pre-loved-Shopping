@@ -14,12 +14,15 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.pre_lovedshopping.Connection.ConnectionClass;
+import com.example.pre_lovedshopping.Fragments.MyProfileFragment;
 import com.example.pre_lovedshopping.R;
 import com.example.pre_lovedshopping.Session.SessionManager;
+import com.example.pre_lovedshopping.model.User;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class LoginActivity extends AppCompatActivity {
@@ -30,19 +33,21 @@ public class LoginActivity extends AppCompatActivity {
     Connection con;
 
     SessionManager sessionManager;
+    String name;
+    Integer uId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        sessionManager = new SessionManager(getApplicationContext());
+        sessionManager = new SessionManager(this);
 
         emaillogin = (EditText) findViewById(R.id.emaillogin);
         passwordlogin = (EditText) findViewById(R.id.passwordlogin);
-
         btn_login = (Button) findViewById(R.id.btn_login);
         btn_registerfromlogin = (Button) findViewById(R.id.btn_registerfromlogin);
+
 
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,11 +107,32 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 Toast.makeText(LoginActivity.this, "Login Success", Toast.LENGTH_LONG).show();
+                                try {
+                                     name = rs.getString("name");
+                                     uId = rs.getInt("user_id");
+
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                         message = "Success";
+                        User user = new User();
+                        user.name = name;
+                        user.email = emaillogin.getText().toString();
+                        user.id = uId;
 
-                        sessionManager.createLoginSession(email, password);
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("user_id", user.id);
+                        // set Fragmentclass Arguments
+                        MyProfileFragment fragobj = new MyProfileFragment();
+                        fragobj.setArguments(bundle);
+
+                        //User user = new User();
+                       // user.email = emaillogin.getText().toString();
+
+                        sessionManager.createSession(emaillogin.getText().toString(), name, passwordlogin.getText().toString());
+
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();

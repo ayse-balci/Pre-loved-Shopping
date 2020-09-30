@@ -65,6 +65,16 @@
                             android:textColor="@color/colorWhite" />
                     </LinearLayout>
 
+                    <Button
+                        android:id="@+id/btn_logout"
+                        android:background="@color/colorWhite"
+                        android:textColor="@color/colorBlue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18dp"
+                        android:text="Logout"
+                        android:layout_marginBottom="10dp"/>
+
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
